@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - Let's Kill Cancer{% endblock %}
+
+{% block extra_css %}
+<style>
+    .home-hero {
+        text-align: center;
+        padding: 4rem 0;
+    }
+    
+    .home-actions {
+        margin-top: 2rem;
+    }
+    
+    .home-actions-row {
+        margin-top: 2rem;
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="home-hero">
+        {% if user.is_authenticated %}
+            <h1>Welcome, {{ user.first_name }}! 👋</h1>
+            
+            {% if user_type == 'patient' %}
+            <p class="text-secondary">You are logged in as a Patient</p>
+            <div class="home-actions">
+                <a href="{% url 'accounts:logout' %}" class="btn btn-primary">Logout</a>
+            </div>
+            {% elif user_type == 'doctor' %}
+            <p class="text-secondary">You are logged in as a Doctor</p>
+            <div class="home-actions">
+                <a href="{% url 'accounts:logout' %}" class="btn btn-primary">Logout</a>
+            </div>
+            {% endif %}
+        {% else %}
+            <h1>Welcome to Let's Kill Cancer</h1>
+            <p class="text-secondary">Your health is important. A healthier tomorrow starts today.</p>
+            <div class="home-actions-row">
+                <a href="{% url 'accounts:login' %}" class="btn btn-primary">Sign In</a>
+                <a href="{% url 'accounts:register' %}" class="btn btn-secondary">Create Account</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
