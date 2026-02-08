@@ -18,9 +18,23 @@ db.sqlite3-journal
 /media
 /staticfiles
 
-# Environment variables
+# Environment variables & Secrets
 .env
 .env.local
+.env*.local
+.env.*.local
+secrets/
+*.key
+*.pem
+*.p8
+private/
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+*.sqlite-journal
+*.sqlite3-journal
 
 # IDE
 .vscode/
@@ -28,14 +42,58 @@ db.sqlite3-journal
 *.swp
 *.swo
 *~
+.project
+.pydevproject
+.settings/
 
 # OS
 .DS_Store
 Thumbs.db
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb
 
 # Project specific
 models/*.pkl
 *.pkl
+*.joblib
+static/
+media/
+data/private/
+credentials.json
+config/local.py
+
+# Pip
+pip-log.txt
+pip-delete-this-directory.txt
+.pip/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# MacOS
+.AppleDouble
+.LSOverride
+
+# Windows
+*.exe
+*.dll
+*.lib
 
 
 
