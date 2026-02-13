@@ -125,6 +125,12 @@ class Doctor(models.Model):
         blank=True,
         help_text="Available consultation hours"
     )
+    profile_image = models.ImageField(
+        upload_to='doctor_profiles/',
+        blank=True,
+        null=True,
+        help_text='Doctor profile image'
+    )
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)

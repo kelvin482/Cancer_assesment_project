@@ -86,6 +86,7 @@
                 <!-- Patient Login Form -->
                 <form method="post" class="auth-form form-role-dependent {% if role == 'patient' or not role %}active{% endif %}" id="patientLoginForm" data-role="patient" novalidate>
                     {% csrf_token %}
+                    <input type="hidden" name="role" value="patient">
                     
                     <div class="form-group">
                         <label for="patient-email">Email Address</label>
@@ -153,6 +154,7 @@
                 <!-- Doctor Login Form -->
                 <form method="post" class="auth-form form-role-dependent {% if role == 'doctor' %}active{% endif %}" id="doctorLoginForm" data-role="doctor" novalidate>
                     {% csrf_token %}
+                    <input type="hidden" name="role" value="doctor">
                     
                     <div class="form-group">
                         <label for="doctor-id">Professional ID</label>
@@ -162,12 +164,16 @@
                                 type="text" 
                                 id="doctor-id" 
                                 name="professional_id" 
-                                placeholder="Enter your professional ID"
+                                placeholder="{{ professional_id_placeholder|default:'Medical license or professional ID number' }}"
                                 required
                                 class="form-field-input"
+                                autocomplete="username"
                                 value="{{ form_data.professional_id|default_if_none:'' }}"
                             >
                         </div>
+                        {% if errors.professional_id %}
+                        <div class="form-errors"><p>{{ errors.professional_id }}</p></div>
+                        {% endif %}
                     </div>
 
                     <div class="form-group">
@@ -193,6 +199,12 @@
                             </button>
                         </div>
                     </div>
+
+                    {% if errors.non_field %}
+                    <div class="form-errors">
+                        <p>{{ errors.non_field }}</p>
+                    </div>
+                    {% endif %}
 
                     <div class="form-check">
                         <input 

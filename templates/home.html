@@ -36,8 +36,9 @@
             </div>
             {% elif user_type == 'doctor' %}
             <p class="text-secondary">You are logged in as a Doctor</p>
-            <div class="home-actions">
-                <a href="{% url 'accounts:logout' %}" class="btn btn-primary">Logout</a>
+            <div class="home-actions-row">
+                <a href="{% url 'doctor_dashboard' %}" class="btn btn-primary">Open Doctor Dashboard</a>
+                <a href="{% url 'accounts:logout' %}" class="btn btn-secondary">Logout</a>
             </div>
             {% endif %}
         {% else %}

@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Doctor Settings - Let's Kill Cancer{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'doctor/pages/settings/settings.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="settings-page">
+    <header class="settings-header">
+        <h1>Doctor Settings</h1>
+        <p>Manage your profile image, contact information, and professional details.</p>
+    </header>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if doctor_profile %}
+    <form method="post" enctype="multipart/form-data" class="settings-form" novalidate>
+        {% csrf_token %}
+
+        <section class="card profile-card">
+            <h2>Profile Photo</h2>
+            <div class="profile-row">
+                <div class="preview-wrap">
+                    {% if doctor_profile.profile_image %}
+                    <img id="profilePreview" src="{{ doctor_profile.profile_image.url }}" alt="Doctor profile image">
+                    {% else %}
+                    <img id="profilePreview" src="{% static 'images/logo.jpeg' %}" alt="Default profile image">
+                    {% endif %}
+                </div>
+                <div class="field-wrap">
+                    <label for="profile_image">Upload image</label>
+                    <input id="profile_image" name="profile_image" type="file" accept="image/*">
+                    <p class="hint">Recommended: square image, max 2MB.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Account Information</h2>
+            <div class="grid two-col">
+                <div class="field-wrap">
+                    <label for="first_name">First Name</label>
+                    <input id="first_name" name="first_name" type="text" value="{{ user.first_name }}">
+                </div>
+                <div class="field-wrap">
+                    <label for="last_name">Last Name</label>
+                    <input id="last_name" name="last_name" type="text" value="{{ user.last_name }}">
+                </div>
+                <div class="field-wrap">
+                    <label for="email">Email</label>
+                    <input id="email" name="email" type="email" value="{{ user.email }}">
+                </div>
+                <div class="field-wrap">
+                    <label for="phone_number">Phone Number</label>
+                    <input id="phone_number" name="phone_number" type="text" value="{{ doctor_profile.phone_number|default_if_none:'' }}">
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Professional Details</h2>
+            <div class="grid two-col">
+                <div class="field-wrap">
+                    <label for="specialization">Specialization</label>
+                    <input id="specialization" name="specialization" type="text" value="{{ doctor_profile.specialization }}">
+                </div>
+                <div class="field-wrap">
+                    <label for="license_number">License Number</label>
+                    <input id="license_number" name="license_number" type="text" value="{{ doctor_profile.license_number }}">
+                </div>
+                <div class="field-wrap">
+                    <label for="institution">Institution</label>
+                    <input id="institution" name="institution" type="text" value="{{ doctor_profile.institution }}">
+                </div>
+                <div class="field-wrap">
+                    <label for="consultation_hours">Consultation Hours</label>
+                    <input id="consultation_hours" name="consultation_hours" type="text" value="{{ doctor_profile.consultation_hours }}" placeholder="Mon-Fri, 9 AM - 5 PM">
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Preference Controls</h2>
+            <div class="toggle-list">
+                <label><input type="checkbox" checked disabled> Email alerts (coming soon)</label>
+                <label><input type="checkbox" disabled> Weekly summary digest (coming soon)</label>
+                <label><input type="checkbox" checked disabled> Risk priority highlighting</label>
+            </div>
+        </section>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">Save Settings</button>
+            <a href="{% url 'doctor_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </form>
+    {% else %}
+    <div class="card">
+        <p>Doctor profile is not available for this account.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'doctor/pages/settings/settings.js' %}"></script>
+{% endblock %}

@@ -157,9 +157,9 @@ def patient_register(request):
 def user_login(request):
     """
     Combined login view for both patients and doctors.
-    Differentiates based on role selection.
+    Patients use email; doctors use Professional ID (from Doctor model).
     """
-    # prepare default form data
+    professional_id_placeholder = Doctor._meta.get_field('professional_id').help_text
     form_data = {'email': '', 'professional_id': ''}
 
     if request.method == 'POST':
@@ -236,7 +236,7 @@ def user_login(request):
                                 request.session.set_expiry(0)
                             
                             messages.success(request, f'Welcome back, Dr. {user.first_name}!')
-                            return redirect('doctor_dashboard')  # Change to doctor dashboard
+                            return redirect('doctor_dashboard')
                     else:
                         errors['non_field'] = 'Invalid Professional ID or password'
                 except Doctor.DoesNotExist:
@@ -248,12 +248,18 @@ def user_login(request):
                 'errors': errors,
                 'role': role,
                 'form_data': form_data,
+                'professional_id_placeholder': professional_id_placeholder,
             }
             messages.error(request, 'Login failed. Please check your credentials.')
             return render(request, 'accounts/login.html', context)
     
     # GET request - display login form
-    return render(request, 'accounts/login.html', {'errors': {}, 'form_data': {}, 'role': 'patient'})
+    return render(request, 'accounts/login.html', {
+        'errors': {},
+        'form_data': form_data,
+        'role': 'patient',
+        'professional_id_placeholder': professional_id_placeholder,
+    })
 
 
 # ============================================

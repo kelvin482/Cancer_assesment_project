@@ -1,0 +1,140 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnosis Report</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Merriweather:wght@700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'doctor/pages/report/report.css' %}?v=20260214b">
+</head>
+<body>
+    <main class="report">
+        <header class="report-header">
+            <div class="header-bar">
+                <div class="brand-block">
+                    <img src="{% static 'images/logo.jpeg' %}" alt="Let's Kill Cancer Logo" class="report-logo">
+                    <div class="brand-text">
+                        <div class="system-name">Let's Kill Cancer</div>
+                        <div class="system-tagline">AI-Supported Clinical Assessment</div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button type="button" class="btn btn-inverse" onclick="window.print()">Print</button>
+                    <a class="btn btn-ghost" href="?download=1">Download</a>
+                </div>
+            </div>
+            <div class="title-block">
+                <div class="eyebrow">Clinical Diagnosis Report</div>
+                <h1>Diagnosis Report</h1>
+                <p class="subtitle">Generated for clinical review and documentation.</p>
+            </div>
+        </header>
+
+        <section class="card patient-card">
+            <div class="section-header">
+                <h2>Patient Details</h2>
+                <span class="badge badge-neutral"><span class="mono">Report ID</span> #{{ record.id }}</span>
+            </div>
+            <div class="grid two-col">
+                <div class="info-item"><span class="label">Name</span><span class="value">{% if patient %}{{ patient.get_full_name }}{% else %}Unassigned{% endif %}</span></div>
+                <div class="info-item"><span class="label">Email</span><span class="value">{% if patient %}{{ patient.user.email }}{% else %}N/A{% endif %}</span></div>
+                <div class="info-item"><span class="label">Phone</span><span class="value">{% if patient and patient.phone_number %}{{ patient.phone_number }}{% else %}N/A{% endif %}</span></div>
+                <div class="info-item"><span class="label">Date of Birth</span><span class="value">{% if patient and patient.date_of_birth %}{{ patient.date_of_birth|date:"M d, Y" }}{% else %}N/A{% endif %}</span></div>
+                <div class="info-item"><span class="label">Gender</span><span class="value">{% if patient and patient.gender %}{{ patient.get_gender_display }}{% else %}N/A{% endif %}</span></div>
+                <div class="info-item"><span class="label">Assessment Date</span><span class="value">{{ record.created_at|date:"M d, Y" }}</span></div>
+                <div class="info-item"><span class="label">Doctor</span><span class="value">{{ record.doctor.get_full_name|default:record.doctor.username }}</span></div>
+            </div>
+        </section>
+
+        <section class="card highlight-card">
+            <div class="section-header">
+                <h2>Prediction Result</h2>
+                <span class="badge {% if 'Higher' in record.prediction %}badge-danger{% else %}badge-success{% endif %}">
+                    {% if 'Higher' in record.prediction %}Malignant Risk{% else %}Benign Risk{% endif %}
+                </span>
+            </div>
+            <div class="prediction-row">
+                <p class="prediction">{{ record.prediction }}</p>
+                <div class="confidence-box">
+                    <span class="label">Confidence</span>
+                    <span class="value">AI-Based</span>
+                </div>
+            </div>
+            <p class="note">AI supports clinical judgment and does not replace professional diagnosis.</p>
+        </section>
+
+        <section class="card">
+            <h2>Clinical Interpretation</h2>
+            <ul class="interpretation-list">
+                <li><strong>Model Status:</strong> Active</li>
+                <li><strong>Confidence Basis:</strong> Biopsy feature patterns</li>
+                <li><strong>Recommendation:</strong> Review in context of patient history and follow-up tests.</li>
+            </ul>
+        </section>
+
+        <section class="card">
+            <h2>Submitted Feature Values</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for feature, value in feature_values.items %}
+                    <tr>
+                        <td>{{ feature }}</td>
+                        <td>{{ value }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <section class="card">
+            <div class="section-header">
+                <h2>Signatures</h2>
+                <span class="badge badge-neutral">Professional Verification</span>
+            </div>
+            <div class="signature-grid">
+                <div class="signature-block">
+                    <div class="signature-line"></div>
+                    <div class="signature-meta">
+                        <div><strong>Doctor Signature</strong></div>
+                        <div>Name: {{ record.doctor.get_full_name|default:record.doctor.username }}</div>
+                        <div>Date: {{ record.created_at|date:"M d, Y" }}</div>
+                    </div>
+                </div>
+                <div class="signature-block">
+                    <div class="signature-line"></div>
+                    <div class="signature-meta">
+                        <div><strong>Patient Signature</strong></div>
+                        <div>Name: {% if patient %}{{ patient.get_full_name }}{% else %}Unassigned{% endif %}</div>
+                        <div>Date: ____________________</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card disclaimer-card">
+            <div class="section-header">
+                <h2>Disclaimer</h2>
+                <span class="badge badge-neutral">Clinical Notice</span>
+            </div>
+            <p class="disclaimer-text">
+                This report is generated by an AI-assisted system and is intended to support clinical decision-making.
+                It does not replace professional medical judgment or diagnostic procedures.
+            </p>
+        </section>
+
+        <footer class="report-footer">
+            <div>Prepared by: {{ record.doctor.get_full_name|default:record.doctor.username }}</div>
+            <div>Generated on: {{ record.created_at|date:"M d, Y H:i" }}</div>
+        </footer>
+    </main>
+</body>
+</html>

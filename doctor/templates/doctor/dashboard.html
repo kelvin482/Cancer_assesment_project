@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Doctor Dashboard - Let's Kill Cancer{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'doctor/css/diagnosis.css' %}">
+<link rel="stylesheet" href="{% static 'doctor/pages/dashboard/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-shell">
+    <aside class="dashboard-sidebar" aria-label="Doctor navigation">
+        <div class="sidebar-brand">
+            <h2>Doctor Panel</h2>
+            <p>Clinical Workspace</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{% url 'doctor_dashboard' %}" class="nav-item active">
+                <i class="fas fa-chart-line" aria-hidden="true"></i>
+                <span>Dashboard (Overview)</span>
+            </a>
+            <a href="{% url 'diagnosis' %}" class="nav-item">
+                <i class="fas fa-stethoscope" aria-hidden="true"></i>
+                <span>New Assessment</span>
+            </a>
+            <a href="#patient-records" class="nav-item">
+                <i class="fas fa-folder-open" aria-hidden="true"></i>
+                <span>Patient Records</span>
+            </a>
+            <a href="#reports" class="nav-item">
+                <i class="fas fa-file-medical" aria-hidden="true"></i>
+                <span>Reports</span>
+            </a>
+            <a href="#ai-insights" class="nav-item">
+                <i class="fas fa-brain" aria-hidden="true"></i>
+                <span>AI Insights</span>
+            </a>
+            <a href="{% url 'doctor_settings' %}" class="nav-item">
+                <i class="fas fa-cog" aria-hidden="true"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+    </aside>
+
+    <div class="doctor-dashboard" aria-label="Doctor dashboard">
+        <header class="dashboard-header" aria-labelledby="dashboard-title">
+            <div class="header-title">
+                <h1 id="dashboard-title">Doctor Dashboard</h1>
+                <p class="subtitle">Welcome, Dr. {{ user.get_full_name|default:user.username }}. Review insights and take action.</p>
+            </div>
+            <div class="header-actions" aria-label="Quick actions">
+                <a href="{% url 'diagnosis' %}" class="btn btn-primary">Start New Diagnosis</a>
+                <a href="{% url 'diagnosis' %}" class="btn btn-secondary">View All Records</a>
+                <a href="{% url 'diagnosis' %}" class="btn btn-secondary">Review High-Risk Cases</a>
+            </div>
+        </header>
+
+        {% with assessments=user.inputs.all %}
+        <div id="assessment-data" class="sr-only" aria-hidden="true">
+            {% for a in assessments|slice:":50" %}
+            <div class="assessment-item"
+                 data-id="{{ a.id }}"
+                 data-created="{{ a.created_at|date:'c' }}"
+                 data-prediction="{{ a.prediction|escape }}"
+                 data-patient-name="{% if a.patient %}{{ a.patient.get_full_name }}{% endif %}"
+                 data-patient-email="{% if a.patient %}{{ a.patient.user.email }}{% endif %}">
+            </div>
+            {% endfor %}
+        </div>
+
+        <section class="dashboard-grid" aria-label="Risk overview" id="ai-insights">
+        <div class="card metric-card" aria-labelledby="metric-total-title">
+            <h2 id="metric-total-title">Total Assessments</h2>
+            <div class="metric-value" id="metric-total">0</div>
+            <div class="metric-sub" id="metric-total-sub">No assessments yet</div>
+        </div>
+
+        <div class="card metric-card" aria-labelledby="metric-malignant-title">
+            <h2 id="metric-malignant-title">Percent Malignant</h2>
+            <div class="metric-value" id="metric-malignant">0%</div>
+            <div class="progress"><span id="bar-malignant" class="bar bar-danger" style="width:0%"></span></div>
+        </div>
+
+        <div class="card metric-card" aria-labelledby="metric-benign-title">
+            <h2 id="metric-benign-title">Percent Benign</h2>
+            <div class="metric-value" id="metric-benign">0%</div>
+            <div class="progress"><span id="bar-benign" class="bar bar-success" style="width:0%"></span></div>
+        </div>
+
+        <div class="card metric-card" aria-labelledby="metric-high-title">
+            <h2 id="metric-high-title">High-Risk Cases Today</h2>
+            <div class="metric-value" id="metric-high">0</div>
+            <div class="metric-sub" id="metric-high-sub">Updated on load</div>
+        </div>
+        </section>
+
+        <section class="dashboard-row" aria-label="Risk distribution overview">
+        <div class="card distribution-card">
+            <div class="card-header">
+                <h2>Risk Distribution Overview</h2>
+                <p class="card-subtitle">Overall trends based on recent assessments.</p>
+            </div>
+            <div class="distribution-body">
+                <div class="risk-donut" role="img" aria-label="Risk distribution donut" id="risk-donut">
+                    <div class="donut-center">
+                        <div class="donut-value" id="donut-value">0%</div>
+                        <div class="donut-label">Malignant</div>
+                    </div>
+                </div>
+                <div class="distribution-legend">
+                    <div class="legend-item"><span class="legend-dot danger"></span> Malignant</div>
+                    <div class="legend-item"><span class="legend-dot success"></span> Benign</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card interpretation-card" aria-label="Clinical interpretation">
+            <h2>Clinical Interpretation Summary</h2>
+            <ul class="interpretation-list">
+                <li><strong>AI Model Status:</strong> Active</li>
+                <li><strong>Model Confidence:</strong> Based on biopsy features</li>
+                <li><strong>Note:</strong> AI supports, does not replace, clinical judgment.</li>
+            </ul>
+        </div>
+        </section>
+
+        <section class="dashboard-row" aria-label="High-risk alerts and recent activity">
+        <div class="card alerts-card" role="status" aria-live="polite">
+            <div class="card-header">
+                <h2>Recent High-Risk Cases</h2>
+                <p class="card-subtitle">Immediate attention required for elevated risk predictions.</p>
+            </div>
+            <div id="high-risk-list" class="alerts-list"></div>
+            <p id="high-risk-empty" class="empty-state">No high-risk cases in recent assessments.</p>
+        </div>
+
+        <div class="card recent-card" aria-label="Recent assessments">
+            <div class="card-header">
+                <h2>Recent Assessments</h2>
+                <p class="card-subtitle">Latest AI-supported evaluations.</p>
+            </div>
+            <div id="recent-assessments-list" class="recent-list"></div>
+            <p id="recent-empty" class="empty-state">No assessments available yet.</p>
+        </div>
+        </section>
+
+        <section class="dashboard-row" aria-label="Trend snapshot">
+        <div class="card trend-card">
+            <div class="card-header">
+                <h2>Trend Snapshot (Last 7 Predictions)</h2>
+                <p class="card-subtitle">Frontend-only trend based on recent entries.</p>
+            </div>
+            <div class="trend-body">
+                <canvas id="trendChart" height="120" aria-label="Prediction trend chart" role="img"></canvas>
+                <p id="trend-empty" class="empty-state">Insufficient data to display trend.</p>
+                <!-- TODO: Remove placeholder when assessment data is sufficient. -->
+            </div>
+        </div>
+        </section>
+
+        <section class="dashboard-row" aria-label="Diagnosed patients" id="patient-records">
+        <div class="card recent-card">
+            <div class="card-header">
+                <h2>Diagnosed Patients</h2>
+                <p class="card-subtitle">Most recent linked diagnoses.</p>
+            </div>
+            <div class="recent-list">
+                {% if recent_inputs %}
+                    {% for item in recent_inputs %}
+                    <div class="list-item">
+                        <div class="list-row">
+                            <div>
+                                <strong>
+                                    {% if item.patient %}
+                                        {{ item.patient.get_full_name }}
+                                    {% else %}
+                                        Unassigned
+                                    {% endif %}
+                                </strong>
+                            </div>
+                            <span class="badge {% if 'Higher' in item.prediction %}badge-danger{% else %}badge-success{% endif %}">
+                                {% if 'Higher' in item.prediction %}Malignant{% else %}Benign{% endif %}
+                            </span>
+                        </div>
+                        <div class="list-row">
+                            <div>Date: {{ item.created_at|date:"M d, Y" }}</div>
+                            {% if item.patient %}
+                            <div>{{ item.patient.user.email }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="empty-state">No diagnosed patients yet.</p>
+                {% endif %}
+            </div>
+        </div>
+        </section>
+
+        <section class="dashboard-row" aria-label="Reports and settings">
+            <div class="card" id="reports">
+                <div class="card-header">
+                    <h2>Reports</h2>
+                    <p class="card-subtitle">Open any recent diagnosis and export a report from the result view.</p>
+                </div>
+                <a href="{% url 'diagnosis' %}" class="btn btn-secondary">Go To Assessments</a>
+            </div>
+            <div class="card" id="settings">
+                <div class="card-header">
+                    <h2>Settings</h2>
+                    <p class="card-subtitle">Update your doctor profile, contact details, and preferences.</p>
+                </div>
+                <a href="{% url 'doctor_settings' %}" class="btn btn-secondary">Open Settings</a>
+            </div>
+        </section>
+
+        {% endwith %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'doctor/pages/dashboard/dashboard.js' %}"></script>
+{% endblock %}
