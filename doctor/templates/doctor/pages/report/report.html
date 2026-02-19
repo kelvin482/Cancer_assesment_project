@@ -8,9 +8,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Merriweather:wght@700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'doctor/pages/report/report.css' %}?v=20260214b">
+    <link rel="stylesheet" href="{% static 'doctor/pages/report/report.css' %}?v=20260214d">
 </head>
 <body>
+    <div class="report-top-nav">
+        <a href="{% url 'doctor_dashboard' %}" class="report-top-nav-btn report-top-nav-home">
+            <span aria-hidden="true">&#8962;</span>
+            <span>Doctor Home</span>
+        </a>
+        <button type="button" class="report-top-nav-btn report-top-nav-back" onclick="window.history.back()">
+            <span aria-hidden="true">&#8592;</span>
+            <span>Back</span>
+        </button>
+    </div>
     <main class="report">
         <header class="report-header">
             <div class="header-bar">

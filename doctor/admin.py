@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.password_validation import validate_password
 from accounts.models import Doctor
 
-from .models import DoctorInput, Feature
+from .models import DoctorInput, Feature, EducationPost
 
 
 # Unregister Doctor from accounts so we can register with password support
@@ -145,3 +145,4 @@ class DoctorAdmin(admin.ModelAdmin):
 
 admin.site.register(DoctorInput)
 admin.site.register(Feature)
+admin.site.register(EducationPost)

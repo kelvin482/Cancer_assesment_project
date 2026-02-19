@@ -31,3 +31,19 @@ class Feature(models.Model):
 
     def __str__(self):
         return self.display_name
+
+
+class EducationPost(models.Model):
+    doctor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="education_posts")
+    title = models.CharField(max_length=160)
+    summary = models.CharField(max_length=300)
+    content = models.TextField()
+    is_published = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.title} ({self.doctor.username})"

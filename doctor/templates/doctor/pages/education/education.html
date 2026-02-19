@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Patient Advice & Blogs - Doctor Panel{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'doctor/css/doctor_theme.css' %}">
+<link rel="stylesheet" href="{% static 'doctor/pages/dashboard/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'doctor/pages/education/education.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-bleed">
+    <div class="dashboard-shell">
+        <aside class="dashboard-sidebar" aria-label="Doctor navigation">
+            <div class="sidebar-brand">
+                <h2>Doctor Panel</h2>
+                <p>Clinical Workspace</p>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{% url 'doctor_dashboard' %}" class="nav-item">
+                    <i class="fas fa-chart-line" aria-hidden="true"></i>
+                    <span>Dashboard (Overview)</span>
+                </a>
+                <a href="{% url 'diagnosis' %}" class="nav-item">
+                    <i class="fas fa-stethoscope" aria-hidden="true"></i>
+                    <span>New Assessment</span>
+                </a>
+                <a href="{% url 'doctor_dashboard' %}#patient-records" class="nav-item">
+                    <i class="fas fa-folder-open" aria-hidden="true"></i>
+                    <span>Patient Records</span>
+                </a>
+                <a href="{% url 'doctor_dashboard' %}#reports" class="nav-item">
+                    <i class="fas fa-file-medical" aria-hidden="true"></i>
+                    <span>Reports</span>
+                </a>
+                <a href="{% url 'doctor_dashboard' %}#ai-insights" class="nav-item">
+                    <i class="fas fa-brain" aria-hidden="true"></i>
+                    <span>AI Insights</span>
+                </a>
+                <a href="{% url 'doctor_education' %}" class="nav-item active">
+                    <i class="fas fa-book-medical" aria-hidden="true"></i>
+                    <span>Patient Advice &amp; Blogs</span>
+                </a>
+                <a href="{% url 'doctor_settings' %}" class="nav-item">
+                    <i class="fas fa-cog" aria-hidden="true"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <section class="doctor-dashboard education-main" aria-label="Education workspace">
+            <header class="education-header card">
+                <p class="education-kicker">Clinical Knowledge Hub</p>
+                <h1>Patient Advice & Blogs</h1>
+                <p class="education-subtitle">Use these short resources to support patient counseling and follow-up communication.</p>
+            </header>
+
+            <section class="education-grid" aria-label="Blog and advice content">
+                <div class="card education-card">
+                    <div class="card-header">
+                        <h2>Create Patient Education Post</h2>
+                        <p class="card-subtitle">Write guidance doctors can later publish to the patient app.</p>
+                    </div>
+                    <form method="post" class="education-form">
+                        {% csrf_token %}
+                        <div class="education-form-field">
+                            <label for="{{ post_form.title.id_for_label }}">Title</label>
+                            {{ post_form.title }}
+                            {{ post_form.title.errors }}
+                        </div>
+                        <div class="education-form-field">
+                            <label for="{{ post_form.summary.id_for_label }}">Summary</label>
+                            {{ post_form.summary }}
+                            {{ post_form.summary.errors }}
+                        </div>
+                        <div class="education-form-field">
+                            <label for="{{ post_form.content.id_for_label }}">Educational Content</label>
+                            {{ post_form.content }}
+                            {{ post_form.content.errors }}
+                        </div>
+                        <label class="publish-toggle" for="{{ post_form.is_published.id_for_label }}">
+                            {{ post_form.is_published }}
+                            <span>Publish immediately</span>
+                        </label>
+                        <button type="submit" class="btn btn-primary education-submit-btn">Save Post</button>
+                    </form>
+                </div>
+
+                <div class="card education-card">
+                    <div class="card-header">
+                        <h2>Your Saved Posts</h2>
+                        <p class="card-subtitle">Posts created by you for patient education.</p>
+                    </div>
+                    <div class="education-list">
+                        {% for post in doctor_posts %}
+                        <article class="education-item">
+                            <div class="education-item-header">
+                                <h3>{{ post.title }}</h3>
+                                <span class="edu-tag {% if post.is_published %}published{% else %}draft{% endif %}">
+                                    {% if post.is_published %}Published{% else %}Draft{% endif %}
+                                </span>
+                            </div>
+                            <p>{{ post.summary }}</p>
+                            <small>{{ post.created_at|date:"M d, Y H:i" }}</small>
+                        </article>
+                        {% empty %}
+                        <p class="empty-education">No posts yet. Create your first education post.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <aside class="dashboard-context" aria-label="Education quick links">
+            <section class="card context-card">
+                <div class="context-header">
+                    <h3>Published Feed Preview</h3>
+                </div>
+                <div class="check-list">
+                    {% for post in published_posts %}
+                    <div class="check-item education-link education-preview-item">
+                        <div>
+                            <strong>{{ post.title }}</strong>
+                            <small>By Dr. {{ post.doctor.get_full_name|default:post.doctor.username }}</small>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="empty-education">No published education posts available yet.</p>
+                    {% endfor %}
+                </div>
+            </section>
+        </aside>
+    </div>
+</div>
+{% endblock %}

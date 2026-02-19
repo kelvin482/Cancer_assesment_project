@@ -1,5 +1,5 @@
 from django import forms
-from .models import Feature
+from .models import Feature, EducationPost
 
 
 #If you add a new feature later →The form updates automatically.
@@ -21,3 +21,14 @@ class DiagnosisForm(forms.Form):
                     "placeholder": f"Enter value ({feature.min_value}-{feature.max_value})"
                 })
             )
+
+
+class EducationPostForm(forms.ModelForm):
+    class Meta:
+        model = EducationPost
+        fields = ["title", "summary", "content", "is_published"]
+        widgets = {
+            "title": forms.TextInput(attrs={"placeholder": "Post title"}),
+            "summary": forms.TextInput(attrs={"placeholder": "Short summary for patients"}),
+            "content": forms.Textarea(attrs={"rows": 6, "placeholder": "Write educational guidance for patients"}),
+        }

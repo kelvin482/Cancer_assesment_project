@@ -28,7 +28,7 @@
                 <a href="{% url 'home' %}">Let's Kill Cancer</a>
                 {% endif %}
             </div>
-            
+
             <div class="navbar-menu">
                 <ul class="nav-list">
                     <li>
@@ -40,6 +40,16 @@
                         <a href="{% url 'accounts:login' %}" class="nav-link">Login</a>
                         {% endif %}
                     </li>
+                    {% if user.is_authenticated and request.path|slice:":8" == "/doctor/" %}
+                    <li>
+                        <a
+                            href="{% url 'doctor_education' %}"
+                            class="nav-link nav-link-edu{% if request.path == '/doctor/education/' %} active{% endif %}"
+                        >
+                            Education
+                        </a>
+                    </li>
+                    {% endif %}
                     <li>{% if user.is_authenticated %}<a href="{% url 'accounts:logout' %}" class="nav-link">Logout</a>{% else %}<a href="{% url 'accounts:register' %}" class="nav-link btn-primary">Register</a>{% endif %}</li>
                     {% if user.is_authenticated %}<li class="nav-user"><span class="user-greeting">Hi, {{ user.username }}</span></li>{% endif %}
                 </ul>
@@ -49,11 +59,11 @@
 
     <!-- Main Content -->
     <main class="main-content">
-        <div class="container">
+        <div class="{% if request.path|slice:':8' == '/doctor/' %}doctor-fullwidth{% else %}container{% endif %}">
             {% if user.is_authenticated and request.path|slice:":8" == "/doctor/" and request.path != "/doctor/" %}
-            <div style="display:flex; gap:10px; margin-bottom:14px;">
-                <a href="{% url 'doctor_dashboard' %}" class="btn btn-secondary">Doctor Home</a>
-                <button type="button" class="btn btn-secondary" onclick="window.history.back()">Back</button>
+            <div class="doctor-quick-nav">
+                <a href="{% url 'doctor_dashboard' %}" class="btn btn-secondary doctor-quick-nav-btn">Doctor Home</a>
+                <button type="button" class="btn btn-secondary doctor-quick-nav-btn" onclick="window.history.back()">Back</button>
             </div>
             {% endif %}
             {% block content %}{% endblock %}
