@@ -195,3 +195,15 @@ Color usage target (60/30/10):
 4. Readability and contrast pass visual review.
 5. No hidden content due to JS-only visibility logic.
 6. Mobile and desktop both remain usable.
+
+### 11.8 Step 1 Delivery (Token Cleanup + Conflict Reduction)
+This is the first safe implementation step for premium dashboard polish.
+
+1. Define doctor-specific 60/30/10 tokens in `static/css/variables.css` and reference them from dashboard theme rules.
+2. Keep one active premium token block for `.doctor-dashboard-premium`; remove deprecated duplicate theme blocks with competing palettes.
+3. Keep navbar brand/action colors inherited from shared global tokens instead of redefining multiple variants in page-level CSS.
+4. Do not change dashboard HTML structure while performing token cleanup.
+5. Validate after each CSS edit with visual checks on:
+- Dashboard overview
+- Diagnosis page buttons
+- Education nav badge

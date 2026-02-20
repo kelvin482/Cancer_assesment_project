@@ -13,9 +13,24 @@
 <div class="dashboard-bleed">
     <div class="dashboard-shell">
         <aside class="dashboard-sidebar" aria-label="Doctor navigation">
-            <div class="sidebar-brand">
-                <h2>Doctor Panel</h2>
-                <p>Clinical Workspace</p>
+            <div class="sidebar-profile">
+                <div class="sidebar-profile-main">
+                    <div class="sidebar-avatar-wrap" aria-hidden="true">
+                        {% if user.doctor.profile_image %}
+                        <img src="{{ user.doctor.profile_image.url }}" alt="Doctor profile image" class="sidebar-avatar">
+                        {% else %}
+                        <img src="{% static 'images/logo.jpeg' %}" alt="Doctor profile image" class="sidebar-avatar">
+                        {% endif %}
+                    </div>
+                    <div class="sidebar-profile-meta">
+                        <p class="sidebar-profile-name">Dr. {{ user.get_full_name|default:user.username }}</p>
+                        <p class="sidebar-profile-role">{{ user.doctor.specialization|default:"Consultant Physician" }}</p>
+                        <p class="sidebar-profile-location">
+                            <i class="fas fa-location-dot" aria-hidden="true"></i>
+                            <span>{{ user.doctor.institution|default:"Clinical Workspace" }}</span>
+                        </p>
+                    </div>
+                </div>
             </div>
             <nav class="sidebar-nav">
                 <a href="{% url 'doctor_dashboard' %}" class="nav-item">
@@ -26,21 +41,21 @@
                     <i class="fas fa-stethoscope" aria-hidden="true"></i>
                     <span>New Assessment</span>
                 </a>
-                <a href="{% url 'doctor_dashboard' %}#patient-records" class="nav-item">
+                <a href="{% url 'patient_records' %}" class="nav-item">
                     <i class="fas fa-folder-open" aria-hidden="true"></i>
                     <span>Patient Records</span>
                 </a>
-                <a href="{% url 'doctor_dashboard' %}#reports" class="nav-item">
+                <a href="{% url 'doctor_reports' %}" class="nav-item">
                     <i class="fas fa-file-medical" aria-hidden="true"></i>
                     <span>Reports</span>
                 </a>
-                <a href="{% url 'doctor_dashboard' %}#ai-insights" class="nav-item">
+                <a href="{% url 'doctor_ai_insights' %}" class="nav-item">
                     <i class="fas fa-brain" aria-hidden="true"></i>
                     <span>AI Insights</span>
                 </a>
                 <a href="{% url 'doctor_education' %}" class="nav-item active">
                     <i class="fas fa-book-medical" aria-hidden="true"></i>
-                    <span>Patient Advice &amp; Blogs</span>
+                    <span>Education</span>
                 </a>
                 <a href="{% url 'doctor_settings' %}" class="nav-item">
                     <i class="fas fa-cog" aria-hidden="true"></i>

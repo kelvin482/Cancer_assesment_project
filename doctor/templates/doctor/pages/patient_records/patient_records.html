@@ -1,0 +1,492 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Patient Records - Let's Kill Cancer{% endblock %}
+
+{% block extra_css %}
+<style>
+    .records-page {
+        width: 100%;
+        max-width: none;
+    }
+
+    .records-shell.card {
+        width: 100%;
+        border: 1px solid #bcd4fb;
+        border-radius: 16px;
+        background:
+            linear-gradient(145deg, #f5f9ff 0%, #eaf2ff 55%, #e2edff 100%);
+        box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .records-top {
+        padding: 22px 22px 18px;
+        border-bottom: 1px solid #d6e5ff;
+    }
+
+    .records-title {
+        margin: 0;
+        text-align: center;
+        font-size: clamp(2rem, 3vw, 2.6rem);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: #0b2b5f;
+    }
+
+    .records-summary {
+        margin-top: 16px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .summary-card {
+        border: 1px solid #c3d9fb;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 12px 14px;
+        min-height: 88px;
+        display: grid;
+        align-content: center;
+        gap: 8px;
+    }
+
+    .summary-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .summary-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 7px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.78rem;
+        border: 1px solid transparent;
+    }
+
+    .summary-icon.total {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+        color: #1d4ed8;
+    }
+
+    .summary-icon.high {
+        background: #fee2e2;
+        border-color: #fecaca;
+        color: #b91c1c;
+    }
+
+    .summary-icon.low {
+        background: #dcfce7;
+        border-color: #bbf7d0;
+        color: #166534;
+    }
+
+    .summary-label {
+        margin: 0;
+        color: #1f3f6b;
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .summary-value-row {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+    }
+
+    .summary-value {
+        margin: 0;
+        font-size: 1.65rem;
+        line-height: 1;
+        font-weight: 800;
+        color: #0b2b5f;
+        font-variant-numeric: tabular-nums;
+        min-width: 2ch;
+    }
+
+    .summary-value.high { color: #b91c1c; }
+    .summary-value.low { color: #166534; }
+
+    .summary-unit {
+        font-size: 0.78rem;
+        color: #64748b;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+    }
+
+    .records-tools-row {
+        padding: 12px 22px;
+        border-bottom: 1px solid #d6e5ff;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 252, 255, 0.95) 100%);
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: nowrap;
+    }
+
+    .records-tools {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-wrap: nowrap;
+        width: 100%;
+    }
+
+    .records-search {
+        position: relative;
+        flex: 0 1 clamp(320px, 40vw, 520px);
+        min-width: 320px;
+    }
+
+    .records-search i {
+        position: absolute;
+        left: 11px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        font-size: 0.9rem;
+        pointer-events: none;
+    }
+
+    .records-search input,
+    .records-tools select {
+        border: 1px solid #b5c9e8;
+        border-radius: 10px;
+        background: #ffffff;
+        color: #0f172a;
+        font-size: 0.95rem;
+        min-height: 44px;
+    }
+
+    .records-search input {
+        width: 100%;
+        padding: 8px 10px 8px 32px;
+    }
+
+    .records-tools select {
+        width: 220px;
+        padding: 8px 10px;
+    }
+
+    .records-search input:focus,
+    .records-tools select:focus {
+        outline: 2px solid #93c5fd;
+        outline-offset: 1px;
+        border-color: #60a5fa;
+    }
+
+    .records-table-wrap {
+        overflow-x: auto;
+        background: #ffffff;
+    }
+
+    .records-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 860px;
+    }
+
+    .records-table thead th {
+        text-align: left;
+        padding: 11px 14px;
+        border-bottom: 1px solid #cdddf4;
+        background: #ecf4ff;
+        color: #1f3f6b;
+        font-size: 0.82rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        white-space: nowrap;
+    }
+
+    .records-table tbody td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #dbe6f6;
+        vertical-align: top;
+    }
+
+    .records-table tbody tr:nth-child(even) td {
+        background: #fcfdff;
+    }
+
+    .records-table tbody tr:hover td {
+        background: #f3f8ff;
+    }
+
+    .records-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .serial-cell {
+        font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+        color: #1e3a8a;
+        font-weight: 700;
+    }
+
+    .date-main {
+        display: block;
+        color: #0f172a;
+        font-weight: 600;
+    }
+
+    .date-sub {
+        display: block;
+        margin-top: 2px;
+        color: #64748b;
+        font-size: 0.84rem;
+    }
+
+    .patient-main {
+        margin: 0;
+        color: #0f172a;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    .patient-sub {
+        margin: 3px 0 0;
+        color: #64748b;
+        font-size: 0.86rem;
+        line-height: 1.3;
+    }
+
+    .risk-pill {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 5px 11px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .risk-pill.high {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .risk-pill.low {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .records-empty {
+        padding: 22px 14px;
+        color: #33537e;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .records-empty[hidden] {
+        display: none;
+    }
+
+    .records-shell .btn.btn-secondary {
+        border: 1px solid #1d4ed8;
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        color: #ffffff;
+        box-shadow: 0 6px 14px rgba(37, 99, 235, 0.2);
+    }
+
+    .records-shell .btn.btn-secondary:hover {
+        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+        border-color: #1e3a8a;
+    }
+
+    @media (max-width: 900px) {
+        .records-summary {
+            grid-template-columns: 1fr;
+        }
+
+        .records-tools-row {
+            justify-content: stretch;
+            flex-wrap: wrap;
+        }
+
+        .records-tools {
+            justify-content: stretch;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .records-search {
+            min-width: 0;
+            flex: 1 1 100%;
+        }
+
+        .records-tools select {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="records-page">
+    <section class="records-shell card" aria-label="Patient diagnosis records">
+        <div class="records-top">
+            <h1 class="records-title">Patient Records</h1>
+        <div class="records-summary" aria-label="Records summary">
+            <article class="summary-card">
+                <div class="summary-head">
+                    <span class="summary-icon total" aria-hidden="true"><i class="fas fa-folder-open"></i></span>
+                    <p class="summary-label">Total Records</p>
+                </div>
+                <div class="summary-value-row">
+                    <p class="summary-value">{{ total_records }}</p>
+                    <span class="summary-unit">Records</span>
+                </div>
+            </article>
+            <article class="summary-card">
+                <div class="summary-head">
+                    <span class="summary-icon high" aria-hidden="true"><i class="fas fa-triangle-exclamation"></i></span>
+                    <p class="summary-label">Malignant Risk</p>
+                </div>
+                <div class="summary-value-row">
+                    <p class="summary-value high">{{ high_risk_count }}</p>
+                    <span class="summary-unit">Cases</span>
+                </div>
+            </article>
+            <article class="summary-card">
+                <div class="summary-head">
+                    <span class="summary-icon low" aria-hidden="true"><i class="fas fa-shield-heart"></i></span>
+                    <p class="summary-label">Benign Risk</p>
+                </div>
+                <div class="summary-value-row">
+                    <p class="summary-value low">{{ benign_count }}</p>
+                    <span class="summary-unit">Cases</span>
+                </div>
+            </article>
+        </div>
+        </div>
+
+        <div class="records-tools-row">
+            <div class="records-tools">
+                <div class="records-search">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                    <input id="recordsSearchInput" type="text" placeholder="Search patient, email, or record ID">
+                </div>
+                <select id="recordsRiskFilter" aria-label="Filter by risk">
+                    <option value="all">All Risk Types</option>
+                    <option value="high">Malignant Risk</option>
+                    <option value="low">Benign Risk</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="records-table-wrap">
+            <table class="records-table" aria-label="Patient records table">
+                <thead>
+                    <tr>
+                        <th>Serial</th>
+                        <th>Date</th>
+                        <th>Patient Details</th>
+                        <th>Risk Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="recordsTableBody">
+                    {% if recent_inputs %}
+                        {% for item in recent_inputs %}
+                        <tr
+                            class="record-row"
+                            data-risk="{% if 'Higher' in item.prediction %}high{% else %}low{% endif %}"
+                            data-search="{{ item.id }} {% if item.patient %}{{ item.patient.get_full_name }} {{ item.patient.user.email }} {{ item.patient.phone_number|default_if_none:'' }}{% else %}unassigned{% endif %} {{ item.prediction }}"
+                        >
+                            <td class="serial-cell">#{{ item.id }}</td>
+                            <td>
+                                <span class="date-main">{{ item.created_at|date:"d M Y" }}</span>
+                                <span class="date-sub">{{ item.created_at|date:"H:i" }}</span>
+                            </td>
+                            <td>
+                                <p class="patient-main">
+                                    {% if item.patient %}
+                                        {{ item.patient.get_full_name }}
+                                    {% else %}
+                                        Unassigned
+                                    {% endif %}
+                                </p>
+                                <p class="patient-sub">
+                                    {% if item.patient %}
+                                        {{ item.patient.user.email }}
+                                    {% else %}
+                                        No linked patient account
+                                    {% endif %}
+                                </p>
+                                {% if item.patient and item.patient.phone_number %}
+                                <p class="patient-sub">Phone: {{ item.patient.phone_number }}</p>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="risk-pill {% if 'Higher' in item.prediction %}high{% else %}low{% endif %}">
+                                    {% if 'Higher' in item.prediction %}Malignant Risk{% else %}Benign Risk{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'diagnosis_report' item.id %}" class="btn btn-secondary">Open Report</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="records-empty">No diagnosis records yet.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <p id="recordsFilteredEmpty" class="records-empty" hidden>No records match your current filters.</p>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        var searchInput = document.getElementById('recordsSearchInput');
+        var riskFilter = document.getElementById('recordsRiskFilter');
+        var tableBody = document.getElementById('recordsTableBody');
+        var filteredEmpty = document.getElementById('recordsFilteredEmpty');
+        if (!searchInput || !riskFilter || !tableBody || !filteredEmpty) return;
+
+        function normalize(v) {
+            return String(v || '').toLowerCase().trim();
+        }
+
+        function applyFilters() {
+            var query = normalize(searchInput.value);
+            var risk = normalize(riskFilter.value);
+            var rows = tableBody.querySelectorAll('tr.record-row');
+            var visibleCount = 0;
+
+            rows.forEach(function (row) {
+                var rowRisk = normalize(row.getAttribute('data-risk'));
+                var haystack = normalize(row.getAttribute('data-search'));
+                var riskMatch = (risk === 'all') || (risk === rowRisk);
+                var textMatch = !query || haystack.indexOf(query) !== -1;
+                var show = riskMatch && textMatch;
+                row.style.display = show ? '' : 'none';
+                if (show) visibleCount += 1;
+            });
+
+            filteredEmpty.hidden = visibleCount !== 0 || rows.length === 0;
+        }
+
+        searchInput.addEventListener('input', applyFilters);
+        riskFilter.addEventListener('change', applyFilters);
+    })();
+</script>
+{% endblock %}

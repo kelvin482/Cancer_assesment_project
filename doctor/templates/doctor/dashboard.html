@@ -14,21 +14,23 @@
     <div class="dashboard-shell">
         <aside class="dashboard-sidebar" aria-label="Doctor navigation">
             <div class="sidebar-profile">
-                <div class="sidebar-avatar-wrap" aria-hidden="true">
-                    {% if user.doctor.profile_image %}
-                    <img src="{{ user.doctor.profile_image.url }}" alt="Doctor profile image" class="sidebar-avatar">
-                    {% else %}
-                    <img src="{% static 'images/logo.jpeg' %}" alt="Doctor profile image" class="sidebar-avatar">
-                    {% endif %}
+                <div class="sidebar-profile-main">
+                    <div class="sidebar-avatar-wrap" aria-hidden="true">
+                        {% if user.doctor.profile_image %}
+                        <img src="{{ user.doctor.profile_image.url }}" alt="Doctor profile image" class="sidebar-avatar">
+                        {% else %}
+                        <img src="{% static 'images/logo.jpeg' %}" alt="Doctor profile image" class="sidebar-avatar">
+                        {% endif %}
+                    </div>
+                    <div class="sidebar-profile-meta">
+                        <p class="sidebar-profile-name">Dr. {{ user.get_full_name|default:user.username }}</p>
+                        <p class="sidebar-profile-role">{{ user.doctor.specialization|default:"Consultant Physician" }}</p>
+                        <p class="sidebar-profile-location">
+                            <i class="fas fa-location-dot" aria-hidden="true"></i>
+                            <span>{{ user.doctor.institution|default:"Clinical Workspace" }}</span>
+                        </p>
+                    </div>
                 </div>
-                <div class="sidebar-profile-meta">
-                    <p class="sidebar-profile-name">Dr. {{ user.get_full_name|default:user.username }}</p>
-                    <p class="sidebar-profile-role">Consultant Physician</p>
-                </div>
-            </div>
-            <div class="sidebar-brand">
-                <h2>Doctor Panel</h2>
-                <p>Clinical Workspace</p>
             </div>
             <nav class="sidebar-nav">
                 <a href="{% url 'doctor_dashboard' %}" class="nav-item active">
@@ -39,21 +41,21 @@
                     <i class="fas fa-stethoscope" aria-hidden="true"></i>
                     <span>New Assessment</span>
                 </a>
-                <a href="#patient-records" class="nav-item">
+                <a href="{% url 'patient_records' %}" class="nav-item">
                     <i class="fas fa-folder-open" aria-hidden="true"></i>
                     <span>Patient Records</span>
                 </a>
-                <a href="#reports" class="nav-item">
+                <a href="{% url 'doctor_reports' %}" class="nav-item">
                     <i class="fas fa-file-medical" aria-hidden="true"></i>
                     <span>Reports</span>
                 </a>
-                <a href="#ai-insights" class="nav-item">
+                <a href="{% url 'doctor_ai_insights' %}" class="nav-item">
                     <i class="fas fa-brain" aria-hidden="true"></i>
                     <span>AI Insights</span>
                 </a>
                 <a href="{% url 'doctor_education' %}" class="nav-item">
                     <i class="fas fa-book-medical" aria-hidden="true"></i>
-                    <span>Patient Advice &amp; Blogs</span>
+                    <span>Education</span>
                 </a>
                 <a href="{% url 'doctor_settings' %}" class="nav-item">
                     <i class="fas fa-cog" aria-hidden="true"></i>
@@ -73,19 +75,19 @@
                     <p class="subtitle">Welcome, Dr. {{ user.get_full_name|default:user.username }}. Review insights and take action.</p>
                     <div class="header-actions" aria-label="Quick actions">
                         <a href="{% url 'diagnosis' %}" class="btn btn-primary">Start New Diagnosis</a>
-                        <a href="#patient-records" class="btn btn-secondary">View All Records</a>
-                        <a href="#ai-insights" class="btn btn-secondary">Review High-Risk Cases</a>
                     </div>
                 </div>
                 <div class="header-visual" aria-hidden="true">
-                    <div class="header-visual-badge">
-                        <i class="fas fa-stethoscope"></i>
-                    </div>
-                    <p class="header-visual-label">Care Overview</p>
-                    <div class="header-visual-icons">
-                        <i class="fas fa-stethoscope"></i>
-                        <i class="fas fa-heartbeat"></i>
-                        <i class="fas fa-capsules"></i>
+                    <span class="header-float header-float-1"><i class="fas fa-capsules"></i></span>
+                    <span class="header-float header-float-2"><i class="fas fa-vial"></i></span>
+                    <span class="header-float header-float-3"><i class="fas fa-briefcase-medical"></i></span>
+                    <span class="header-float header-float-4"><i class="fas fa-heart-pulse"></i></span>
+                    <div class="header-visual-panel">
+                        <img src="{% static 'images/hero-medical-team-cutout.png' %}" alt="Medical team" class="header-visual-team">
+                        <div class="header-visual-overlay">
+                            <p class="header-visual-label">Care Overview</p>
+                            <p class="header-visual-note">AI-ready clinical workspace</p>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -148,6 +150,35 @@
                 </div>
             </section>
 
+            <section class="dashboard-row" aria-label="Trend snapshot">
+                <div class="card trend-card">
+                    <div class="card-header trend-header">
+                        <h2>Clinical Risk Trend</h2>
+                        <p class="card-subtitle">Risk trajectory based on the latest submitted assessments.</p>
+                    </div>
+                    <div class="trend-controls" role="group" aria-label="Trend window selector">
+                        <button type="button" class="trend-filter-btn active" data-window="7">7-Day</button>
+                        <button type="button" class="trend-filter-btn" data-window="14">14-Day</button>
+                        <button type="button" class="trend-filter-btn" data-window="30">30-Day</button>
+                        <button type="button" class="trend-filter-btn" data-window="100">100-Day</button>
+                    </div>
+                    <div class="trend-summary" aria-label="Trend summary">
+                        <span class="trend-window-label" id="trendWindowLabel">Window: 7-Day</span>
+                        <div class="trend-pill-group">
+                            <span class="trend-pill trend-pill-malignant">Malignant: <strong id="trendMalignantCount">0</strong></span>
+                            <span class="trend-pill trend-pill-benign">Benign: <strong id="trendBenignCount">0</strong></span>
+                            <span class="trend-pill trend-pill-total">Total: <strong id="trendTotalCount">0</strong></span>
+                        </div>
+                    </div>
+                    <div class="trend-body">
+                        <div class="trend-scroll" id="trend-scroll">
+                            <canvas id="trendChart" class="trend-canvas" aria-label="Prediction trend chart" role="img"></canvas>
+                        </div>
+                        <p id="trend-empty" class="empty-state">Insufficient data to display trend.</p>
+                    </div>
+                </div>
+            </section>
+
             <section class="dashboard-row" aria-label="Risk distribution overview">
                 <div class="card distribution-card">
                     <div class="card-header card-header-split">
@@ -156,7 +187,7 @@
                             <p class="card-subtitle">Clinical risk mix for the active cohort.</p>
                         </div>
                         <div class="card-actions">
-                            <a href="#patient-records" class="card-action-btn">View Cohort</a>
+                            <a href="{% url 'patient_records' %}" class="card-action-btn">View Cohort</a>
                             <button type="button" class="card-action-btn card-action-btn-primary" id="exportSummaryBtn">Export Summary</button>
                         </div>
                     </div>
@@ -260,35 +291,6 @@
                 </div>
             </section>
 
-            <section class="dashboard-row" aria-label="Trend snapshot">
-                <div class="card trend-card">
-                    <div class="card-header">
-                        <h2>Trend Snapshot (Last 7 Predictions)</h2>
-                        <p class="card-subtitle">Frontend-only trend based on recent entries.</p>
-                    </div>
-                    <div class="trend-controls" role="group" aria-label="Trend window selector">
-                        <button type="button" class="trend-filter-btn active" data-window="7">7-Day</button>
-                        <button type="button" class="trend-filter-btn" data-window="14">14-Day</button>
-                        <button type="button" class="trend-filter-btn" data-window="30">30-Day</button>
-                        <button type="button" class="trend-filter-btn" data-window="100">100-Day</button>
-                    </div>
-                    <div class="trend-summary" aria-label="Trend summary">
-                        <span class="trend-window-label" id="trendWindowLabel">Window: 7-Day</span>
-                        <div class="trend-pill-group">
-                            <span class="trend-pill trend-pill-malignant">Malignant: <strong id="trendMalignantCount">0</strong></span>
-                            <span class="trend-pill trend-pill-benign">Benign: <strong id="trendBenignCount">0</strong></span>
-                            <span class="trend-pill trend-pill-total">Total: <strong id="trendTotalCount">0</strong></span>
-                        </div>
-                    </div>
-                    <div class="trend-body">
-                        <div class="trend-scroll" id="trend-scroll">
-                            <canvas id="trendChart" class="trend-canvas" aria-label="Prediction trend chart" role="img"></canvas>
-                        </div>
-                        <p id="trend-empty" class="empty-state">Insufficient data to display trend.</p>
-                    </div>
-                </div>
-            </section>
-
             <section class="dashboard-row" aria-label="Diagnosed patients" id="patient-records">
                 <div class="card recent-card">
                     <div class="card-header">
@@ -372,13 +374,30 @@
                         <p class="calendar-marked-info" id="calendarMarkedInfo">Marked follow-up dates: 0</p>
                         <button type="button" class="calendar-clear-btn" id="calendarClear">Clear Marks</button>
                     </div>
+                    <div class="calendar-note-panel" id="calendarNotePanel" hidden>
+                        <label for="calendarNoteInput" class="calendar-note-label" id="calendarNoteLabel">Follow-up note</label>
+                        <textarea
+                            id="calendarNoteInput"
+                            class="calendar-note-input"
+                            rows="3"
+                            maxlength="140"
+                            placeholder="Add follow-up text for this date..."
+                        ></textarea>
+                        <div class="calendar-note-actions">
+                            <p class="calendar-note-meta" id="calendarNoteMeta">Select a date to add a note.</p>
+                            <div class="calendar-note-btn-row">
+                                <button type="button" class="calendar-note-btn calendar-note-btn-primary" id="calendarNoteSave">Save Note</button>
+                                <button type="button" class="calendar-note-btn" id="calendarNoteRemove">Remove Date</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
             <section class="card context-card">
                 <div class="context-header">
                     <h3>Your Last Health Check</h3>
-                    <a href="#patient-records" class="context-link">View all</a>
+                    <a href="{% url 'patient_records' %}" class="context-link">View all</a>
                 </div>
                 <div class="check-list">
                     {% if recent_inputs %}

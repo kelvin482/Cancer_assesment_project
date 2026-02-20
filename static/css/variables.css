@@ -10,6 +10,18 @@
     /* ACCENT COLOR */
     --accent-color: #FFC107;            /* Highlights, call-to-action buttons */
     --accent-hover: #FFB300;            /* Accent hover state */
+
+    /* DOCTOR DASHBOARD TOKENS (60/30/10) */
+    --doctor-60-bg: #FAFAFA;            /* Primary canvas */
+    --doctor-60-surface: #FFFFFF;       /* Cards and panels */
+    --doctor-30-chrome: #E3F2FD;        /* Structural chrome surfaces */
+    --doctor-30-border: #D7E3EF;        /* Hairline + panel borders */
+    --doctor-30-text: #334155;          /* Secondary structural text */
+    --doctor-10-accent: #E91E63;        /* Primary action + active state */
+    --doctor-10-accent-dark: #D81B60;   /* Accent hover/pressed state */
+    --doctor-10-accent-soft: #F8BBD0;   /* Accent tints and soft fills */
+    --doctor-status-success: #4CAF50;   /* Positive status */
+    --doctor-status-danger: #F44336;    /* Critical status */
     
     /* TEXT COLORS */
     --text-primary: #212121;            /* Main text color */

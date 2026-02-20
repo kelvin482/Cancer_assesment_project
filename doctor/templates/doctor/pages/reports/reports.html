@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reports Center - Doctor Panel{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'doctor/css/doctor_theme.css' %}">
+<link rel="stylesheet" href="{% static 'doctor/pages/dashboard/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'doctor/pages/reports/reports.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-bleed">
+    <div class="dashboard-shell">
+        <aside class="dashboard-sidebar" aria-label="Doctor navigation">
+            <div class="sidebar-profile">
+                <div class="sidebar-profile-main">
+                    <div class="sidebar-avatar-wrap" aria-hidden="true">
+                        {% if user.doctor.profile_image %}
+                        <img src="{{ user.doctor.profile_image.url }}" alt="Doctor profile image" class="sidebar-avatar">
+                        {% else %}
+                        <img src="{% static 'images/logo.jpeg' %}" alt="Doctor profile image" class="sidebar-avatar">
+                        {% endif %}
+                    </div>
+                    <div class="sidebar-profile-meta">
+                        <p class="sidebar-profile-name">Dr. {{ user.get_full_name|default:user.username }}</p>
+                        <p class="sidebar-profile-role">{{ user.doctor.specialization|default:"Consultant Physician" }}</p>
+                        <p class="sidebar-profile-location">
+                            <i class="fas fa-location-dot" aria-hidden="true"></i>
+                            <span>{{ user.doctor.institution|default:"Clinical Workspace" }}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{% url 'doctor_dashboard' %}" class="nav-item">
+                    <i class="fas fa-chart-line" aria-hidden="true"></i>
+                    <span>Dashboard (Overview)</span>
+                </a>
+                <a href="{% url 'diagnosis' %}" class="nav-item">
+                    <i class="fas fa-stethoscope" aria-hidden="true"></i>
+                    <span>New Assessment</span>
+                </a>
+                <a href="{% url 'patient_records' %}" class="nav-item">
+                    <i class="fas fa-folder-open" aria-hidden="true"></i>
+                    <span>Patient Records</span>
+                </a>
+                <a href="{% url 'doctor_reports' %}" class="nav-item active">
+                    <i class="fas fa-file-medical" aria-hidden="true"></i>
+                    <span>Reports</span>
+                </a>
+                <a href="{% url 'doctor_ai_insights' %}" class="nav-item">
+                    <i class="fas fa-brain" aria-hidden="true"></i>
+                    <span>AI Insights</span>
+                </a>
+                <a href="{% url 'doctor_education' %}" class="nav-item">
+                    <i class="fas fa-book-medical" aria-hidden="true"></i>
+                    <span>Education</span>
+                </a>
+                <a href="{% url 'doctor_settings' %}" class="nav-item">
+                    <i class="fas fa-cog" aria-hidden="true"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <section class="doctor-dashboard reports-main" aria-label="Reports center">
+            <header class="card reports-header">
+                <p class="reports-kicker">Clinical Documentation</p>
+                <h1>Reports Center</h1>
+                <p class="reports-subtitle">Review diagnosis documentation, open report details, and download shareable copies.</p>
+            </header>
+
+            <section class="reports-summary-grid" aria-label="Report summary">
+                <article class="card reports-summary-card">
+                    <h2>Total Reports</h2>
+                    <p class="summary-value">{{ snapshot.total }}</p>
+                </article>
+                <article class="card reports-summary-card">
+                    <h2>Malignant Risk</h2>
+                    <p class="summary-value danger">{{ snapshot.high_risk_count }}</p>
+                    <p class="summary-meta">{{ snapshot.high_risk_pct }}% of reports</p>
+                </article>
+                <article class="card reports-summary-card">
+                    <h2>Benign Risk</h2>
+                    <p class="summary-value success">{{ snapshot.benign_count }}</p>
+                    <p class="summary-meta">{{ snapshot.benign_pct }}% of reports</p>
+                </article>
+                <article class="card reports-summary-card">
+                    <h2>Linked Patients</h2>
+                    <p class="summary-value">{{ linked_patients }}</p>
+                </article>
+            </section>
+
+            <section class="card reports-table-card" aria-label="Recent reports">
+                <div class="card-header">
+                    <h2>Recent Reports</h2>
+                    <p class="card-subtitle">Latest diagnosis reports generated from your submissions.</p>
+                </div>
+                <div class="reports-table-wrap">
+                    <table class="reports-table">
+                        <thead>
+                            <tr>
+                                <th>Report ID</th>
+                                <th>Date</th>
+                                <th>Patient</th>
+                                <th>Risk Status</th>
+                                <th>Confidence</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in report_rows %}
+                            <tr>
+                                <td>#{{ row.record.id }}</td>
+                                <td>{{ row.record.created_at|date:"d M Y, H:i" }}</td>
+                                <td>
+                                    <strong>{{ row.patient_name }}</strong><br>
+                                    <small>{{ row.patient_email }}</small>
+                                </td>
+                                <td>
+                                    <span class="risk-pill {% if row.is_high_risk %}risk-pill-danger{% else %}risk-pill-success{% endif %}">
+                                        {% if row.is_high_risk %}Malignant Risk{% else %}Benign Risk{% endif %}
+                                    </span>
+                                </td>
+                                <td>{{ row.confidence }}%</td>
+                                <td class="reports-actions">
+                                    <a href="{% url 'diagnosis_report' row.record.id %}" class="btn btn-secondary btn-sm">Open</a>
+                                    <a href="{% url 'diagnosis_report' row.record.id %}?download=1" class="btn btn-secondary btn-sm">Download</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="reports-empty">No reports available yet. Complete a diagnosis to generate your first report.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+
+        <aside class="dashboard-context" aria-label="Reports context">
+            <section class="card context-card reports-context-card">
+                <div class="context-header">
+                    <h3>Quick Report Status</h3>
+                    <i class="fas fa-file-circle-check" aria-hidden="true"></i>
+                </div>
+                <p class="context-stat"><strong>Model Status:</strong> {{ snapshot.model_status }}</p>
+                <p class="context-stat"><strong>Model Accuracy:</strong> {{ snapshot.accuracy }}%</p>
+                <p class="context-stat"><strong>Confidence Score:</strong> {{ snapshot.confidence_score }}%</p>
+                {% if latest_record %}
+                <p class="context-stat"><strong>Last Report:</strong> #{{ latest_record.id }} on {{ latest_record.created_at|date:"d M Y, H:i" }}</p>
+                {% else %}
+                <p class="context-stat">No report has been generated yet.</p>
+                {% endif %}
+            </section>
+        </aside>
+    </div>
+</div>
+{% endblock %}

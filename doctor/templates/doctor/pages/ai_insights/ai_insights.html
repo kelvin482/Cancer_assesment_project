@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Insights - Doctor Panel{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'doctor/css/doctor_theme.css' %}">
+<link rel="stylesheet" href="{% static 'doctor/pages/dashboard/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'doctor/pages/ai_insights/ai_insights.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-bleed">
+    <div class="dashboard-shell">
+        <aside class="dashboard-sidebar" aria-label="Doctor navigation">
+            <div class="sidebar-profile">
+                <div class="sidebar-profile-main">
+                    <div class="sidebar-avatar-wrap" aria-hidden="true">
+                        {% if user.doctor.profile_image %}
+                        <img src="{{ user.doctor.profile_image.url }}" alt="Doctor profile image" class="sidebar-avatar">
+                        {% else %}
+                        <img src="{% static 'images/logo.jpeg' %}" alt="Doctor profile image" class="sidebar-avatar">
+                        {% endif %}
+                    </div>
+                    <div class="sidebar-profile-meta">
+                        <p class="sidebar-profile-name">Dr. {{ user.get_full_name|default:user.username }}</p>
+                        <p class="sidebar-profile-role">{{ user.doctor.specialization|default:"Consultant Physician" }}</p>
+                        <p class="sidebar-profile-location">
+                            <i class="fas fa-location-dot" aria-hidden="true"></i>
+                            <span>{{ user.doctor.institution|default:"Clinical Workspace" }}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{% url 'doctor_dashboard' %}" class="nav-item">
+                    <i class="fas fa-chart-line" aria-hidden="true"></i>
+                    <span>Dashboard (Overview)</span>
+                </a>
+                <a href="{% url 'diagnosis' %}" class="nav-item">
+                    <i class="fas fa-stethoscope" aria-hidden="true"></i>
+                    <span>New Assessment</span>
+                </a>
+                <a href="{% url 'patient_records' %}" class="nav-item">
+                    <i class="fas fa-folder-open" aria-hidden="true"></i>
+                    <span>Patient Records</span>
+                </a>
+                <a href="{% url 'doctor_reports' %}" class="nav-item">
+                    <i class="fas fa-file-medical" aria-hidden="true"></i>
+                    <span>Reports</span>
+                </a>
+                <a href="{% url 'doctor_ai_insights' %}" class="nav-item active">
+                    <i class="fas fa-brain" aria-hidden="true"></i>
+                    <span>AI Insights</span>
+                </a>
+                <a href="{% url 'doctor_education' %}" class="nav-item">
+                    <i class="fas fa-book-medical" aria-hidden="true"></i>
+                    <span>Education</span>
+                </a>
+                <a href="{% url 'doctor_settings' %}" class="nav-item">
+                    <i class="fas fa-cog" aria-hidden="true"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <section class="doctor-dashboard ai-main" aria-label="AI insights workspace">
+            <header class="card ai-header">
+                <p class="ai-kicker">Decision Support</p>
+                <h1>AI Insights Center</h1>
+                <p class="ai-subtitle">Track model outputs, high-risk shifts, and confidence signals from your recent assessments.</p>
+            </header>
+
+            <section class="ai-summary-grid" aria-label="AI summary metrics">
+                <article class="card ai-summary-card">
+                    <h2>Model Accuracy</h2>
+                    <p class="ai-value">{{ snapshot.accuracy }}%</p>
+                </article>
+                <article class="card ai-summary-card">
+                    <h2>Confidence Score</h2>
+                    <p class="ai-value">{{ snapshot.confidence_score }}%</p>
+                </article>
+                <article class="card ai-summary-card">
+                    <h2>Sensitivity</h2>
+                    <p class="ai-value">{{ snapshot.sensitivity }}%</p>
+                </article>
+                <article class="card ai-summary-card">
+                    <h2>Specificity</h2>
+                    <p class="ai-value">{{ snapshot.specificity }}%</p>
+                </article>
+            </section>
+
+            <section class="dashboard-row" aria-label="Risk mix and trends">
+                <article class="card ai-distribution-card">
+                    <div class="card-header">
+                        <h2>Risk Composition</h2>
+                        <p class="card-subtitle">Current distribution across your assessment history.</p>
+                    </div>
+                    <div class="ai-progress-row">
+                        <div class="ai-progress-label">
+                            <strong>Malignant Risk</strong>
+                            <span>{{ snapshot.high_risk_count }} cases ({{ snapshot.high_risk_pct }}%)</span>
+                        </div>
+                        <div class="ai-progress-track">
+                            <span class="ai-progress-fill ai-progress-danger" style="width: {{ snapshot.high_risk_pct }}%;"></span>
+                        </div>
+                    </div>
+                    <div class="ai-progress-row">
+                        <div class="ai-progress-label">
+                            <strong>Benign Risk</strong>
+                            <span>{{ snapshot.benign_count }} cases ({{ snapshot.benign_pct }}%)</span>
+                        </div>
+                        <div class="ai-progress-track">
+                            <span class="ai-progress-fill ai-progress-success" style="width: {{ snapshot.benign_pct }}%;"></span>
+                        </div>
+                    </div>
+                    <p class="ai-trend-note">High-risk trend: <strong>{{ high_risk_trend }}</strong></p>
+                </article>
+
+                <article class="card ai-highrisk-card">
+                    <div class="card-header">
+                        <h2>High-Risk Queue</h2>
+                        <p class="card-subtitle">Most recent assessments classified as malignant risk.</p>
+                    </div>
+                    <div class="ai-list">
+                        {% for row in high_risk_rows %}
+                        <div class="ai-list-item">
+                            <div>
+                                <strong>{{ row.patient_name }}</strong>
+                                <small>{{ row.record.created_at|date:"d M Y, H:i" }}</small>
+                            </div>
+                            <a href="{% url 'diagnosis_report' row.record.id %}" class="btn btn-secondary btn-sm">Open Report</a>
+                        </div>
+                        {% empty %}
+                        <p class="ai-empty">No high-risk assessments in your current records.</p>
+                        {% endfor %}
+                    </div>
+                </article>
+            </section>
+
+            <section class="card ai-signals-card" aria-label="Recent model signals">
+                <div class="card-header">
+                    <h2>Recent Prediction Signals</h2>
+                    <p class="card-subtitle">Latest AI output stream from your diagnosis workflow.</p>
+                </div>
+                <div class="ai-signals-wrap">
+                    <table class="ai-signals-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Patient</th>
+                                <th>Prediction</th>
+                                <th>Confidence</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in recent_rows %}
+                            <tr>
+                                <td>{{ row.record.created_at|date:"d M Y, H:i" }}</td>
+                                <td>
+                                    <strong>{{ row.patient_name }}</strong><br>
+                                    <small>{{ row.patient_email }}</small>
+                                </td>
+                                <td>
+                                    <span class="risk-pill {% if row.is_high_risk %}risk-pill-danger{% else %}risk-pill-success{% endif %}">
+                                        {% if row.is_high_risk %}Malignant Risk{% else %}Benign Risk{% endif %}
+                                    </span>
+                                </td>
+                                <td>{{ row.confidence }}%</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="ai-empty">No AI signals yet. Submit a new assessment to begin tracking.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+
+        <aside class="dashboard-context" aria-label="AI context panel">
+            <section class="card context-card ai-context-card">
+                <div class="context-header">
+                    <h3>Model Watch</h3>
+                    <i class="fas fa-microchip" aria-hidden="true"></i>
+                </div>
+                <p class="context-stat"><strong>Status:</strong> {{ snapshot.model_status }}</p>
+                {% if latest_record %}
+                <p class="context-stat"><strong>Last Updated:</strong> {{ latest_record.created_at|date:"d M Y, H:i" }}</p>
+                {% else %}
+                <p class="context-stat"><strong>Last Updated:</strong> Awaiting first assessment</p>
+                {% endif %}
+                <p class="context-stat"><strong>Last Retrained:</strong> {{ last_retrained|date:"d M Y" }}</p>
+            </section>
+        </aside>
+    </div>
+</div>
+{% endblock %}
