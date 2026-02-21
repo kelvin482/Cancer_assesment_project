@@ -20,7 +20,7 @@
 /* Left Panel - Welcome Section */
 .auth-welcome-panel {
     flex: 1;
-    background: linear-gradient(135deg, rgba(25, 118, 210, 0.95) 0%, rgba(21, 101, 192, 0.95) 100%);
+    background: linear-gradient(130deg, rgba(14, 79, 150, 0.86) 0%, rgba(24, 105, 190, 0.84) 100%);
     color: var(--bg-white);
     display: flex;
     flex-direction: column;
@@ -29,6 +29,7 @@
     padding: var(--spacing-2xl);
     position: relative;
     overflow: hidden;
+    isolation: isolate;
     min-width: 300px;
 }
 
@@ -40,11 +41,12 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: url('../images/medical_bg.png');
+    background-image: url('../../images/hero-medical-team.jpg');
     background-size: cover;
     background-position: center;
-    filter: blur(8px);
-    opacity: 0.3;
+    filter: blur(11px) saturate(1.08);
+    opacity: 0.5;
+    transform: scale(1.12);
     z-index: 0;
 }
 
@@ -72,7 +74,8 @@
     align-items: center;
     justify-content: center;
     padding: var(--spacing-xl);
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(10, 56, 106, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 20px;
     backdrop-filter: blur(10px);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
@@ -86,14 +89,17 @@
     align-items: center;
     justify-content: center;
     filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.2));
-    background: rgba(255, 255, 255, 0.15);
+    background: #FFFFFF;
     border-radius: 50%;
     padding: var(--spacing-lg);
 }
 
 .auth-welcome-image img {
-    max-width: 100%;
-    height: auto;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
 }
 
 .auth-welcome-heading {
@@ -824,10 +830,12 @@
     }
 
     .auth-welcome-panel::before {
-        width: 250px;
-        height: 250px;
-        top: -100px;
-        left: -100px;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        transform: scale(1.08);
+        filter: blur(8px) saturate(1.03);
     }
 
     .auth-welcome-panel::after {
