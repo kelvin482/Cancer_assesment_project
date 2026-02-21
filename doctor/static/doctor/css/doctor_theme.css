@@ -1,0 +1,73 @@
+/* Shared doctor app gradient theme without changing page structure */
+.dashboard-shell,
+.diagnosis-page,
+.settings-page {
+    position: relative;
+    border-radius: 16px;
+    padding: var(--calm-shell-padding, 14px);
+    background:
+        linear-gradient(135deg, rgba(41, 121, 255, 0.18) 0%, rgba(30, 64, 175, 0.10) 45%, rgba(56, 189, 248, 0.12) 100%),
+        linear-gradient(180deg, #f8fbff 0%, #f1f7ff 100%);
+    border: 1px solid #dbeafe;
+    box-shadow: 0 10px 28px rgba(30, 64, 175, 0.08);
+    overflow: hidden;
+}
+
+/* Dashboard header needs visible overflow for larger heading rendering */
+.dashboard-shell {
+    overflow-x: hidden;
+    overflow-x: clip;
+    overflow-y: visible;
+}
+
+.dashboard-shell::before,
+.diagnosis-page::before,
+.settings-page::before {
+    content: "";
+    position: absolute;
+    inset: -120px auto auto -120px;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.20) 0%, rgba(59, 130, 246, 0) 72%);
+    pointer-events: none;
+}
+
+.dashboard-shell::after,
+.diagnosis-page::after,
+.settings-page::after {
+    content: "";
+    position: absolute;
+    right: -120px;
+    bottom: -120px;
+    width: 340px;
+    height: 340px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.18) 0%, rgba(56, 189, 248, 0) 75%);
+    pointer-events: none;
+}
+
+.dashboard-shell>*,
+.diagnosis-page>*,
+.settings-page>* {
+    position: relative;
+    z-index: 1;
+}
+
+/* Keep content blocks crisp on top of the gradient layer */
+.dashboard-header,
+.diagnosis-container,
+.settings-form .card,
+.settings-page .card {
+    backdrop-filter: blur(2px);
+}
+
+@media (max-width: 768px) {
+
+    .dashboard-shell,
+    .diagnosis-page,
+    .settings-page {
+        padding: 12px;
+        border-radius: 14px;
+    }
+}

@@ -6,7 +6,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'doctor/css/doctor_theme.css' %}">
 <link rel="stylesheet" href="{% static 'doctor/pages/dashboard/dashboard.css' %}">
-<link rel="stylesheet" href="{% static 'doctor/pages/reports/reports.css' %}">
+<link rel="stylesheet" href="{% static 'doctor/pages/reports/reports.css' %}?v=20260221a">
 {% endblock %}
 
 {% block content %}
@@ -61,14 +61,23 @@
                     <i class="fas fa-cog" aria-hidden="true"></i>
                     <span>Settings</span>
                 </a>
+                <a href="{% url 'accounts:logout' %}" class="nav-item nav-item-logout">
+                    <i class="fas fa-right-from-bracket" aria-hidden="true"></i>
+                    <span>Logout</span>
+                </a>
             </nav>
         </aside>
 
         <section class="doctor-dashboard reports-main" aria-label="Reports center">
             <header class="card reports-header">
-                <p class="reports-kicker">Clinical Documentation</p>
-                <h1>Reports Center</h1>
-                <p class="reports-subtitle">Review diagnosis documentation, open report details, and download shareable copies.</p>
+                <div class="reports-header-visual" aria-hidden="true">
+                    <img src="{% static 'images/reports-hero.png' %}" alt="" class="reports-header-image">
+                </div>
+                <div class="reports-header-content">
+                    <p class="reports-kicker">Clinical Documentation</p>
+                    <h1>Reports Center</h1>
+                    <p class="reports-subtitle">Review diagnosis documentation, open report details, and download shareable copies.</p>
+                </div>
             </header>
 
             <section class="reports-summary-grid" aria-label="Report summary">

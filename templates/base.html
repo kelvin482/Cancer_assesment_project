@@ -17,7 +17,7 @@
     <!-- Font Awesome for icons (optional) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body class="{% if request.path|slice:':8' == '/doctor/' %}doctor-route{% endif %}{% if request.path == '/doctor/' %} doctor-dashboard-home{% endif %}">
     <!-- Navigation -->
     <nav class="navbar">
         <div class="navbar-container">
@@ -93,8 +93,16 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-container">
-            <p>&copy; 2026 Let's Kill Cancer. All rights reserved.</p>
-            <p class="disclaimer">This app is for awareness only, not medical diagnosis.</p>
+            <div class="footer-guidance" role="note" aria-label="Research project disclaimer">
+                <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+                <p>
+                    <strong>Research Notice:</strong> Final-year research project for educational use only.
+                    Results are experimental and not for diagnosis or treatment.
+                    Consult a licensed clinician for medical decisions.
+                </p>
+            </div>
+            <p class="footer-copy">&copy; 2026 Let's Kill Cancer. All rights reserved.</p>
+            <p class="disclaimer">Educational and decision-support use only.</p>
         </div>
     </footer>
 

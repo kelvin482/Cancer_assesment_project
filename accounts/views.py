@@ -194,7 +194,6 @@ def user_login(request):
                             if not remember_me:
                                 request.session.set_expiry(0)  # Expires when browser closes
                             
-                            messages.success(request, f'Welcome back, {user.first_name}!')
                             return redirect('home')  # Change to patient dashboard
                         else:
                             errors['non_field'] = 'This account is not a patient account'
@@ -235,7 +234,6 @@ def user_login(request):
                             if not remember_me:
                                 request.session.set_expiry(0)
                             
-                            messages.success(request, f'Welcome back, Dr. {user.first_name}!')
                             return redirect('doctor_dashboard')
                     else:
                         errors['non_field'] = 'Invalid Professional ID or password'
@@ -250,7 +248,6 @@ def user_login(request):
                 'form_data': form_data,
                 'professional_id_placeholder': professional_id_placeholder,
             }
-            messages.error(request, 'Login failed. Please check your credentials.')
             return render(request, 'accounts/login.html', context)
     
     # GET request - display login form
@@ -273,7 +270,6 @@ def user_logout(request):
     Logs out the user and redirects to home.
     """
     logout(request)
-    messages.success(request, 'You have been logged out.')
     return redirect('login')  # Change to your login page
 
 

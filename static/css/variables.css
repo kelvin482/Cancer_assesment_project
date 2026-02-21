@@ -85,6 +85,15 @@
     --spacing-xl: 32px;
     --spacing-2xl: 48px;
     --spacing-3xl: 64px;
+
+    /* Doctor calm spacing tokens (shared across premium doctor pages) */
+    --calm-page-x: clamp(4px, 0.8vw, 10px);
+    --calm-shell-gap: clamp(10px, 1vw, 14px);
+    --calm-shell-padding: clamp(10px, 1vw, 14px);
+    --calm-section-gap: clamp(10px, 1vw, 14px);
+    --calm-grid-gap: clamp(10px, 1vw, 14px);
+    --calm-card-padding: 18px;
+    --calm-card-padding-compact: 16px;
     
     /* BORDER RADIUS */
     --radius-sm: 6px;

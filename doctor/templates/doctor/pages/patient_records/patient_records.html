@@ -4,26 +4,33 @@
 {% block title %}Patient Records - Let's Kill Cancer{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'doctor/css/doctor_theme.css' %}">
+<link rel="stylesheet" href="{% static 'doctor/pages/dashboard/dashboard.css' %}">
 <style>
-    .records-page {
-        width: 100%;
-        max-width: none;
+    .records-layout .dashboard-shell.dashboard-shell-core {
+        align-items: start;
+    }
+
+    .records-main {
+        min-width: 0;
+        display: grid;
+        gap: 10px;
     }
 
     .records-shell.card {
         width: 100%;
-        border: 1px solid #bcd4fb;
+        border: 1px solid #cfe0fb;
         border-radius: 16px;
         background:
-            linear-gradient(145deg, #f5f9ff 0%, #eaf2ff 55%, #e2edff 100%);
-        box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
+            linear-gradient(145deg, #f8fbff 0%, #edf4ff 56%, #e6f0ff 100%);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
         padding: 0;
         overflow: hidden;
     }
 
     .records-top {
         padding: 22px 22px 18px;
-        border-bottom: 1px solid #d6e5ff;
+        border-bottom: 1px solid #d8e6fc;
     }
 
     .records-title {
@@ -32,21 +39,21 @@
         font-size: clamp(2rem, 3vw, 2.6rem);
         font-weight: 800;
         letter-spacing: -0.02em;
-        color: #0b2b5f;
+        color: #cf2068;
     }
 
     .records-summary {
         margin-top: 16px;
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 12px;
+        gap: 10px;
     }
 
     .summary-card {
-        border: 1px solid #c3d9fb;
+        border: 1px solid #cfe0fb;
         border-radius: 12px;
         background: rgba(255, 255, 255, 0.95);
-        padding: 12px 14px;
+        padding: 12px;
         min-height: 88px;
         display: grid;
         align-content: center;
@@ -91,7 +98,7 @@
     .summary-label {
         margin: 0;
         color: #1f3f6b;
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         font-weight: 800;
         letter-spacing: 0.04em;
         text-transform: uppercase;
@@ -126,7 +133,7 @@
 
     .records-tools-row {
         padding: 12px 22px;
-        border-bottom: 1px solid #d6e5ff;
+        border-bottom: 1px solid #d8e6fc;
         background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 252, 255, 0.95) 100%);
         display: flex;
         justify-content: flex-end;
@@ -162,7 +169,7 @@
 
     .records-search input,
     .records-tools select {
-        border: 1px solid #b5c9e8;
+        border: 1px solid #c3d7f6;
         border-radius: 10px;
         background: #ffffff;
         color: #0f172a;
@@ -201,7 +208,7 @@
     .records-table thead th {
         text-align: left;
         padding: 11px 14px;
-        border-bottom: 1px solid #cdddf4;
+        border-bottom: 1px solid #d5e4f8;
         background: #ecf4ff;
         color: #1f3f6b;
         font-size: 0.82rem;
@@ -213,7 +220,7 @@
 
     .records-table tbody td {
         padding: 12px 14px;
-        border-bottom: 1px solid #dbe6f6;
+        border-bottom: 1px solid #dce8f8;
         vertical-align: top;
     }
 
@@ -334,122 +341,182 @@
 {% endblock %}
 
 {% block content %}
-<div class="records-page">
-    <section class="records-shell card" aria-label="Patient diagnosis records">
-        <div class="records-top">
-            <h1 class="records-title">Patient Records</h1>
-        <div class="records-summary" aria-label="Records summary">
-            <article class="summary-card">
-                <div class="summary-head">
-                    <span class="summary-icon total" aria-hidden="true"><i class="fas fa-folder-open"></i></span>
-                    <p class="summary-label">Total Records</p>
+<div class="dashboard-bleed records-layout">
+    <div class="dashboard-shell dashboard-shell-core">
+        <aside class="dashboard-sidebar" aria-label="Doctor navigation">
+            <div class="sidebar-profile">
+                <div class="sidebar-profile-main">
+                    <div class="sidebar-avatar-wrap" aria-hidden="true">
+                        {% if user.doctor.profile_image %}
+                        <img src="{{ user.doctor.profile_image.url }}" alt="Doctor profile image" class="sidebar-avatar">
+                        {% else %}
+                        <img src="{% static 'images/logo.jpeg' %}" alt="Doctor profile image" class="sidebar-avatar">
+                        {% endif %}
+                    </div>
+                    <div class="sidebar-profile-meta">
+                        <p class="sidebar-profile-name">Dr. {{ user.get_full_name|default:user.username }}</p>
+                        <p class="sidebar-profile-role">{{ user.doctor.specialization|default:"Consultant Physician" }}</p>
+                        <p class="sidebar-profile-location">
+                            <i class="fas fa-location-dot" aria-hidden="true"></i>
+                            <span>{{ user.doctor.institution|default:"Clinical Workspace" }}</span>
+                        </p>
+                    </div>
                 </div>
-                <div class="summary-value-row">
-                    <p class="summary-value">{{ total_records }}</p>
-                    <span class="summary-unit">Records</span>
-                </div>
-            </article>
-            <article class="summary-card">
-                <div class="summary-head">
-                    <span class="summary-icon high" aria-hidden="true"><i class="fas fa-triangle-exclamation"></i></span>
-                    <p class="summary-label">Malignant Risk</p>
-                </div>
-                <div class="summary-value-row">
-                    <p class="summary-value high">{{ high_risk_count }}</p>
-                    <span class="summary-unit">Cases</span>
-                </div>
-            </article>
-            <article class="summary-card">
-                <div class="summary-head">
-                    <span class="summary-icon low" aria-hidden="true"><i class="fas fa-shield-heart"></i></span>
-                    <p class="summary-label">Benign Risk</p>
-                </div>
-                <div class="summary-value-row">
-                    <p class="summary-value low">{{ benign_count }}</p>
-                    <span class="summary-unit">Cases</span>
-                </div>
-            </article>
-        </div>
-        </div>
-
-        <div class="records-tools-row">
-            <div class="records-tools">
-                <div class="records-search">
-                    <i class="fas fa-search" aria-hidden="true"></i>
-                    <input id="recordsSearchInput" type="text" placeholder="Search patient, email, or record ID">
-                </div>
-                <select id="recordsRiskFilter" aria-label="Filter by risk">
-                    <option value="all">All Risk Types</option>
-                    <option value="high">Malignant Risk</option>
-                    <option value="low">Benign Risk</option>
-                </select>
             </div>
-        </div>
+            <nav class="sidebar-nav">
+                <a href="{% url 'doctor_dashboard' %}" class="nav-item">
+                    <i class="fas fa-chart-line" aria-hidden="true"></i>
+                    <span>Dashboard (Overview)</span>
+                </a>
+                <a href="{% url 'diagnosis' %}" class="nav-item">
+                    <i class="fas fa-stethoscope" aria-hidden="true"></i>
+                    <span>New Assessment</span>
+                </a>
+                <a href="{% url 'patient_records' %}" class="nav-item active">
+                    <i class="fas fa-folder-open" aria-hidden="true"></i>
+                    <span>Patient Records</span>
+                </a>
+                <a href="{% url 'doctor_reports' %}" class="nav-item">
+                    <i class="fas fa-file-medical" aria-hidden="true"></i>
+                    <span>Reports</span>
+                </a>
+                <a href="{% url 'doctor_ai_insights' %}" class="nav-item">
+                    <i class="fas fa-brain" aria-hidden="true"></i>
+                    <span>AI Insights</span>
+                </a>
+                <a href="{% url 'doctor_education' %}" class="nav-item">
+                    <i class="fas fa-book-medical" aria-hidden="true"></i>
+                    <span>Education</span>
+                </a>
+                <a href="{% url 'doctor_settings' %}" class="nav-item">
+                    <i class="fas fa-cog" aria-hidden="true"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="{% url 'accounts:logout' %}" class="nav-item nav-item-logout">
+                    <i class="fas fa-right-from-bracket" aria-hidden="true"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </aside>
 
-        <div class="records-table-wrap">
-            <table class="records-table" aria-label="Patient records table">
-                <thead>
-                    <tr>
-                        <th>Serial</th>
-                        <th>Date</th>
-                        <th>Patient Details</th>
-                        <th>Risk Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="recordsTableBody">
-                    {% if recent_inputs %}
-                        {% for item in recent_inputs %}
-                        <tr
-                            class="record-row"
-                            data-risk="{% if 'Higher' in item.prediction %}high{% else %}low{% endif %}"
-                            data-search="{{ item.id }} {% if item.patient %}{{ item.patient.get_full_name }} {{ item.patient.user.email }} {{ item.patient.phone_number|default_if_none:'' }}{% else %}unassigned{% endif %} {{ item.prediction }}"
-                        >
-                            <td class="serial-cell">#{{ item.id }}</td>
-                            <td>
-                                <span class="date-main">{{ item.created_at|date:"d M Y" }}</span>
-                                <span class="date-sub">{{ item.created_at|date:"H:i" }}</span>
-                            </td>
-                            <td>
-                                <p class="patient-main">
-                                    {% if item.patient %}
-                                        {{ item.patient.get_full_name }}
-                                    {% else %}
-                                        Unassigned
-                                    {% endif %}
-                                </p>
-                                <p class="patient-sub">
-                                    {% if item.patient %}
-                                        {{ item.patient.user.email }}
-                                    {% else %}
-                                        No linked patient account
-                                    {% endif %}
-                                </p>
-                                {% if item.patient and item.patient.phone_number %}
-                                <p class="patient-sub">Phone: {{ item.patient.phone_number }}</p>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <span class="risk-pill {% if 'Higher' in item.prediction %}high{% else %}low{% endif %}">
-                                    {% if 'Higher' in item.prediction %}Malignant Risk{% else %}Benign Risk{% endif %}
-                                </span>
-                            </td>
-                            <td>
-                                <a href="{% url 'diagnosis_report' item.id %}" class="btn btn-secondary">Open Report</a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="5" class="records-empty">No diagnosis records yet.</td>
-                        </tr>
-                    {% endif %}
-                </tbody>
-            </table>
-        </div>
+        <section class="records-main" aria-label="Patient records workspace">
+            <section class="records-shell card" aria-label="Patient diagnosis records">
+                <div class="records-top">
+                    <h1 class="records-title">Patient Records</h1>
+                    <div class="records-summary" aria-label="Records summary">
+                        <article class="summary-card">
+                            <div class="summary-head">
+                                <span class="summary-icon total" aria-hidden="true"><i class="fas fa-folder-open"></i></span>
+                                <p class="summary-label">Total Records</p>
+                            </div>
+                            <div class="summary-value-row">
+                                <p class="summary-value">{{ total_records }}</p>
+                                <span class="summary-unit">Records</span>
+                            </div>
+                        </article>
+                        <article class="summary-card">
+                            <div class="summary-head">
+                                <span class="summary-icon high" aria-hidden="true"><i class="fas fa-triangle-exclamation"></i></span>
+                                <p class="summary-label">Malignant Risk</p>
+                            </div>
+                            <div class="summary-value-row">
+                                <p class="summary-value high">{{ high_risk_count }}</p>
+                                <span class="summary-unit">Cases</span>
+                            </div>
+                        </article>
+                        <article class="summary-card">
+                            <div class="summary-head">
+                                <span class="summary-icon low" aria-hidden="true"><i class="fas fa-shield-heart"></i></span>
+                                <p class="summary-label">Benign Risk</p>
+                            </div>
+                            <div class="summary-value-row">
+                                <p class="summary-value low">{{ benign_count }}</p>
+                                <span class="summary-unit">Cases</span>
+                            </div>
+                        </article>
+                    </div>
+                </div>
 
-        <p id="recordsFilteredEmpty" class="records-empty" hidden>No records match your current filters.</p>
-    </section>
+                <div class="records-tools-row">
+                    <div class="records-tools">
+                        <div class="records-search">
+                            <i class="fas fa-search" aria-hidden="true"></i>
+                            <input id="recordsSearchInput" type="text" placeholder="Search patient, email, or record ID">
+                        </div>
+                        <select id="recordsRiskFilter" aria-label="Filter by risk">
+                            <option value="all">All Risk Types</option>
+                            <option value="high">Malignant Risk</option>
+                            <option value="low">Benign Risk</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="records-table-wrap">
+                    <table class="records-table" aria-label="Patient records table">
+                        <thead>
+                            <tr>
+                                <th>Serial</th>
+                                <th>Date</th>
+                                <th>Patient Details</th>
+                                <th>Risk Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recordsTableBody">
+                            {% if recent_inputs %}
+                                {% for item in recent_inputs %}
+                                <tr
+                                    class="record-row"
+                                    data-risk="{% if 'Higher' in item.prediction %}high{% else %}low{% endif %}"
+                                    data-search="{{ item.id }} {% if item.patient %}{{ item.patient.get_full_name }} {{ item.patient.user.email }} {{ item.patient.phone_number|default_if_none:'' }}{% else %}unassigned{% endif %} {{ item.prediction }}"
+                                >
+                                    <td class="serial-cell">#{{ item.id }}</td>
+                                    <td>
+                                        <span class="date-main">{{ item.created_at|date:"d M Y" }}</span>
+                                        <span class="date-sub">{{ item.created_at|date:"H:i" }}</span>
+                                    </td>
+                                    <td>
+                                        <p class="patient-main">
+                                            {% if item.patient %}
+                                                {{ item.patient.get_full_name }}
+                                            {% else %}
+                                                Unassigned
+                                            {% endif %}
+                                        </p>
+                                        <p class="patient-sub">
+                                            {% if item.patient %}
+                                                {{ item.patient.user.email }}
+                                            {% else %}
+                                                No linked patient account
+                                            {% endif %}
+                                        </p>
+                                        {% if item.patient and item.patient.phone_number %}
+                                        <p class="patient-sub">Phone: {{ item.patient.phone_number }}</p>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="risk-pill {% if 'Higher' in item.prediction %}high{% else %}low{% endif %}">
+                                            {% if 'Higher' in item.prediction %}Malignant Risk{% else %}Benign Risk{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'diagnosis_report' item.id %}" class="btn btn-secondary">Open Report</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="records-empty">No diagnosis records yet.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <p id="recordsFilteredEmpty" class="records-empty" hidden>No records match your current filters.</p>
+            </section>
+        </section>
+    </div>
 </div>
 {% endblock %}
 

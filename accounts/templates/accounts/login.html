@@ -43,9 +43,11 @@
                 {% if messages %}
                 <div class="message-list">
                     {% for message in messages %}
+                    {% if message.level_tag == 'error' or message.level_tag == 'warning' %}
                     <div class="alert alert-{{ message.tags }}">
                         {{ message }}
                     </div>
+                    {% endif %}
                     {% endfor %}
                 </div>
                 {% endif %}
